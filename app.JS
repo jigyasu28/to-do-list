@@ -41,13 +41,14 @@ app.get("/personal", function(req, res) {
     if(current_user!=null){
     connection.query("select * from todo where user_id='"+ current_user.uid +"'", function(err, result, feilds) {
         if (err) throw err
-        // console.log(result);
+        // console.log(result[0]);
         // listt.push(result);
         res.render('list', {
             kindofday: day,
             newlistitems: items,
             tasks: result
         });
+        
     })
     }
     else{
@@ -140,7 +141,7 @@ console.log(req.body.search);
      connection.query(query, function(err, result, feilds) {
         if (err) throw err
         else {
-            console.log("query runned successfully");
+            console.log("query ran successfully");
         }
         if (result.length == 0) {
             res.redirect('/home');
@@ -269,10 +270,17 @@ app.get("/logout", function(req, res) {
 
 app.get('/delete', function(req, res, next) {
     console.log(req.query);
+         
+    connection.query("select * from todo where id='" + req.query.delete_id + "'", function(err, results, feilds) {
+        if (err) throw err;
+        console.log("data deleted successfully");
+        if(results[0].user_id==current_user.uid){
     connection.query("delete from todo where id='" + req.query.delete_id + "'", function(err, results, feilds) {
         if (err) throw err;
         console.log("data deleted successfully");
         console.log('DELETED rows:', results.affectedRows);
+    });
+}
     });
     res.redirect('/personal');
 });
@@ -280,14 +288,21 @@ app.get('/delete', function(req, res, next) {
 
 
 app.get('/update', function(req, res, next) {
-    console.log(req.query);
-
-    connection.query("update todo set checked=not checked where id='" + req.query.update_id + "'", function(err, results, feilds) {
+        console.log(req.query);
+        
+    connection.query("select * from todo where id='" + req.query.update_id + "'", function(err, results, feilds) {
+        if (err) throw err;
+        console.log("data deleted successfully");
+        if(results[0].user_id==current_user.uid){
+             connection.query("update todo set checked=not checked where id='" + req.query.update_id + "'", function(err, results, feilds) {
         if (err) throw err
         console.log("data deleted successfully");
         console.log('DELETED rows:', results.affectedRows);
     });
-
+        }
+        console.log('DELETED rows:', results.affectedRows);
+    });
+    console.log(req.query);
     res.redirect('/personal');
 });
 
